@@ -18,6 +18,7 @@ function Student() {
       subjectCode,
       formattedDate
     }
+    
     try {
       const response = await axios.post('http://localhost:3000/submit-student-data', studentData);
       console.log("Server response:", response.data);
