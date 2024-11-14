@@ -22,6 +22,11 @@ function Student() {
     try {
       const response = await axios.post('http://localhost:3000/submit-student-data', studentData);
       console.log("Server response:", response.data);
+      setName('');
+      setRollNo('');
+      setClassId('');
+      setSubjectCode('');
+
     } catch (error) {
       console.error("Error submitting student data:", error);
     }
