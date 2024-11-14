@@ -20,8 +20,8 @@ function Student() {
     }
     
     try {
-      // const response = await axios.post('https://server-vpgh.onrender.com/submit-student-data', studentData);
-      const response = await axios.post('http://localhost:3000/submit-student-data', studentData);
+      const response = await axios.post('https://server-vpgh.onrender.com/submit-student-data', studentData);
+      // const response = await axios.post('http://localhost:3000/submit-student-data', studentData);
       console.log("Server response:", response.data);
       alert("Attendance submitted successfully");
       setName('');
