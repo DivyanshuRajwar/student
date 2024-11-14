@@ -20,7 +20,8 @@ function Student() {
     }
     
     try {
-      const response = await axios.post('https://server-vpgh.onrender.com/submit-student-data', studentData);
+      // const response = await axios.post('https://server-vpgh.onrender.com/submit-student-data', studentData);
+      const response = await axios.post('http://localhost:3000/submit-student-data', studentData);
       console.log("Server response:", response.data);
       alert("Attendance submitted successfully");
       setName('');
@@ -29,8 +30,14 @@ function Student() {
       setSubjectCode('');
       
     } catch (error) {
-      console.error("Error submitting student data:", error);
-      alert("Problem in sending attendance");
+      if (error.response && error.response.status === 403) {
+        alert("Time over, no attendance can be submitted");
+      }else if(error.response && error.response.status === 409){
+        alert("Attendance already submitted");
+      } else {
+        console.error("Error submitting student data:", error);
+        alert("Problem in sending attendance");
+      }
     }
   };
    const handleCLassId = (e)=>{
