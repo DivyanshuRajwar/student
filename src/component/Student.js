@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState,useContext } from 'react';
 import axios from 'axios'
+import { AuthContext } from '../context/AuthContext';
 function Student() {
   const [name, setName] = useState('');
   const [rollNo, setRollNo] = useState(''); 
   const [classId ,setClassId] = useState('');
   const [subjectCode , setSubjectCode] = useState('');
-
+  const {restrictLogoutForDuration } = useContext(AuthContext)
   const handleSubmit =async(e) => {
     e.preventDefault();
     const date = new Date();
@@ -28,7 +29,12 @@ function Student() {
       setRollNo('');
       setClassId('');
       setSubjectCode('');
-      
+      if (response.status === 200) {
+        alert('Attendance submitted successfully!');
+        restrictLogoutForDuration(5); 
+      } else {
+        alert('Failed to submit attendance.');
+      }
     } catch (error) {
       if (error.response && error.response.status === 403) {
         alert("Time over, no attendance can be submitted");
@@ -47,7 +53,7 @@ function Student() {
     setClassId(cId);
    }
   return (
-    <div className="flex items-center justify-center min-h-screen p-4">
+    <div className="flex items-center justify-center w-screen h-screen p-4">
       <form
         onSubmit={handleSubmit}
         className="bg-[#FCFCFC] w-full max-w-md p-6 rounded-lg shadow-lg space-y-6 sm:w-4/5 lg:w-1/2"

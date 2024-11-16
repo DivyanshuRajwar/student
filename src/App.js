@@ -1,13 +1,16 @@
+import React from "react";
+import { BrowserRouter as Router } from "react-router-dom";
+import AuthProvider from "./context/AuthContext"; // Importing AuthProvider
+import StudentPage from "./component/StudentPage"; // Your StudentPage component
 
-import './App.css';
-import Student from './component/Student';
-
-function App() {
+const App = () => {
   return (
-    <div className="App">
-      <Student />
-    </div>
+    <AuthProvider>
+      <Router>
+        <StudentPage />
+      </Router>
+    </AuthProvider>
   );
-}
+};
 
 export default App;
