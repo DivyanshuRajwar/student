@@ -1,20 +1,35 @@
-import React,{useContext} from 'react';
-import { Route, Routes } from 'react-router-dom';
-import LoginSignupForm from './LoginSignupForm';
+import React, { useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
-import Student from './Student';
-import HomePage from './HomePage';
-const StudentPage = () => {
-    const{ isAuthenticated} = useContext(AuthContext);
+
+function StudentPage() {
+  const { user } = useContext(AuthContext);
+
+  if (!user) {
+    return (
+      <div className="w-[90%] max-w-2xl p-8 bg-[#FCFCFC] rounded-lg shadow-lg space-y-6 mx-auto mt-10 text-center">
+        <p className="text-gray-600">No user details available. Please log in to view details.</p>
+      </div>
+    );
+  }
+
+  const { fullName, studentId, course } = user;
+
   return (
-    <div className="w-screen  flex justify-center items-center h-screen bg-gray-100">
-    <Routes>
-        <Route path="/*" element={(isAuthenticated) ? <HomePage />: <LoginSignupForm /> } />
-        <Route path="login" element={<LoginSignupForm />} />
-        <Route  path='student-attendance' element={(isAuthenticated) ? <Student />: <LoginSignupForm /> }/>
-    </Routes>
-     
+    <div className="w-[90%] max-w-2xl p-8 bg-[#FCFCFC] rounded-lg shadow-lg space-y-6  ">
+      <h2 className="text-2xl font-bold text-gray-800 mb-4">Personal Details</h2>
+      <ul className="space-y-4 text-gray-700">
+        <li>
+          <span className="font-semibold">Full Name:</span> {fullName}
+        </li>
+        <li>
+          <span className="font-semibold">Student ID:</span> {studentId}
+        </li>
+        <li>
+          <span className="font-semibold">Course:</span> {course}
+        </li>
+      </ul>
     </div>
   );
-};
+}
+
 export default StudentPage;

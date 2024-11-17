@@ -1,13 +1,13 @@
 import React from "react";
 import { BrowserRouter as Router } from "react-router-dom";
-import AuthProvider from "./context/AuthContext"; // Importing AuthProvider
-import StudentPage from "./component/StudentPage"; // Your StudentPage component
+import AuthProvider from "./context/AuthContext"; 
+import HomePage from "./component/HomePage";
 
 const App = () => {
   return (
     <AuthProvider>
       <Router>
-        <StudentPage />
+        <HomePage />
       </Router>
     </AuthProvider>
   );

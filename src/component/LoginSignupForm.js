@@ -1,5 +1,6 @@
 import React, { useState,useContext } from "react";
-import { AuthContext } from '../context/AuthContext';  // Import the AuthContext
+import { AuthContext } from '../context/AuthContext';
+import { toast } from 'react-toastify';
 import axios from 'axios'
 const LoginSignupForm = () => {
     const { isAuthenticated, login, logout } = useContext(AuthContext)
@@ -13,29 +14,28 @@ const LoginSignupForm = () => {
       e.preventDefault();
       const studenetLogin=  {studentId ,password};
       try{
-        // const response = await axios.post('http://localhost:3000/student-registration',studenetLogin);
+        // const response = await axios.post('http://localhost:3000/student-login',studenetLogin);
+
         const response = await axios.post(
-            "https://server-vpgh.onrender.com/student-registration",
+            "https://server-vpgh.onrender.com/student-login",
             studenetLogin
           );
         if (response.status === 200) {
             login(response.data.userData);
-            // login();
+            toast.success("🔑 Welcome back! You've successfully logged in.");
           } else {
-            alert("Login Fail");
-            console.error("Login failed:", response.data.message);
+            // alert("Login Fail");
+            toast.error("🚫 Invalid credentials. Please check your username or password.");
           }
-      }catch(errro){
-
+      }catch(error){
+        toast.error("🚫 Invalid credentials. Please check your username or password.");
       }
-      console.log("Login with Student ID: ", studentId, " Password: ", password);
+      
   
     };
   
     const handleSignup = async(e) => {
       e.preventDefault();
-     
-      console.log("Signup with Name: ", name, " Student ID: ", studentId, " Course: ", course, " Password: ", password);
       const signUpData = {
           studentId,
           name,
@@ -48,21 +48,26 @@ const LoginSignupForm = () => {
             "https://server-vpgh.onrender.com/student-registration",
             signUpData
           );
-          console.log(response.data);
+          if (response.status === 201) {
+            toast.success("🎉 You're all set! Welcome aboard")
+          } else {
+            toast.error("Oops! Something went wrong. Please try again.");
+          }
+         
       }catch(error){
-          if (error.response) {
-              console.error('Error Response:', error.response.data);
-            } else if (error.request) {
-              console.error('No Response:', error.request);
-            } else {
-              console.error('Error:', error.message);
-            }
+          // if (error.response) {
+          //     console.error('Error Response:', error.response.data);
+          //   } else if (error.request) {
+          //     console.error('No Response:', error.request);
+          //   } else {
+          //     console.error('Error:', error.message);
+          //   }
+            toast.error("Oops! Something went wrong. Please try again.");
       }
     };
   
   return (
-    <div className="w-full flex justify-center items-center h-screen bg-gray-100">
-      <div className="w-full h-screen flex justify-center items-center bg-gray-100">
+
         <form
           onSubmit={isLogin ? handleLogin : handleSignup}
           className="w-[90%] max-w-2xl p-8 bg-[#FCFCFC] rounded-lg shadow-lg space-y-6 mx-auto mt-10"
@@ -150,8 +155,6 @@ const LoginSignupForm = () => {
             </button>
           </div>
         </form>
-      </div>
-    </div>
   );
 };
 

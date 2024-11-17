@@ -1,68 +1,76 @@
-import React, { useState,useContext } from 'react';
-import axios from 'axios'
-import { AuthContext } from '../context/AuthContext';
+import React, { useState, useContext } from "react";
+import axios from "axios";
+import { AuthContext } from "../context/AuthContext";
+import { toast } from "react-toastify";
+
 function Student() {
-  const [name, setName] = useState('');
-  const [rollNo, setRollNo] = useState(''); 
-  const [classId ,setClassId] = useState('');
-  const [subjectCode , setSubjectCode] = useState('');
-  const {restrictLogoutForDuration } = useContext(AuthContext)
-  const handleSubmit =async(e) => {
+  const [name, setName] = useState("");
+  const [rollNo, setRollNo] = useState("");
+  const [classId, setClassId] = useState("");
+  const [subjectCode, setSubjectCode] = useState("");
+  const { restrictLogoutForDuration, user } = useContext(AuthContext);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const date = new Date();
-    const formattedDate = `${date.getDate()}${date.getMonth() + 1}${date.getFullYear()}`; 
-    
+    const formattedDate = `${date.getDate()}${date.getMonth() + 1}${date.getFullYear()}`;
+
     const studentData = {
       name,
       rollNo,
       classId,
       subjectCode,
-      formattedDate
-    }
-    
+      studentId: user.studentId,
+      formattedDate,
+    };
+
     try {
-      const response = await axios.post('https://server-vpgh.onrender.com/submit-student-data', studentData);
-      // const response = await axios.post('http://localhost:3000/submit-student-data', studentData);
-      console.log("Server response:", response.data);
-      alert("Attendance submitted successfully");
-      setName('');
-      setRollNo('');
-      setClassId('');
-      setSubjectCode('');
+      // const response = await axios.post("http://localhost:3000/submit-student-data", studentData);
+      const response = await axios.post("https://server-vpgh.onrender.com/submit-student-data", studentData);
+      setName("");
+      setRollNo("");
+      setClassId("");
+      setSubjectCode("");
       if (response.status === 200) {
-        alert('Attendance submitted successfully!');
-        restrictLogoutForDuration(5); 
+        toast.success("🥳 Attendance submitted successfully!");
+        restrictLogoutForDuration(5);
       } else {
-        alert('Failed to submit attendance.');
+        toast.error("Failed to submit attendance.");
       }
     } catch (error) {
       if (error.response && error.response.status === 403) {
-        alert("Time over, no attendance can be submitted");
-      }else if(error.response && error.response.status === 409){
-        alert("Attendance already submitted");
+        toast.warning("Time over, no attendance can be submitted");
+      } else if (error.response && error.response.status === 409) {
+        toast.error("Attendance already submitted");
       } else {
-        console.error("Error submitting student data:", error);
-        alert("Problem in sending attendance");
+        toast.error("Problem in sending attendance");
       }
     }
   };
-   const handleCLassId = (e)=>{
+
+  const handleClassId = (e) => {
     e.preventDefault();
-    let cId = e.target.value;
-    cId = cId.toUpperCase();
+    let cId = e.target.value.toUpperCase();
     setClassId(cId);
-   }
+  };
+
+  const handleSubjectCode = (e) => {
+    e.preventDefault();
+    let sCode = e.target.value.toUpperCase();
+    setSubjectCode(sCode);
+  };
+
   return (
-    <div className="flex items-center justify-center w-screen h-screen p-4">
+    // <div className="flex items-center justify-center min-h-screen bg-[#CFE9D0] px-4 sm:px-6 lg:px-8">
       <form
         onSubmit={handleSubmit}
-        className="bg-[#FCFCFC] w-full max-w-md p-6 rounded-lg shadow-lg space-y-6 sm:w-4/5 lg:w-1/2"
+        className="w-full max-w-sm sm:max-w-md bg-white p-6 rounded-lg shadow-lg space-y-6  sm:px-6 lg:px-8"
       >
         <h2 className="text-2xl font-bold text-center text-gray-800 mb-4">Student Information</h2>
 
         {/* Name Field */}
         <div className="flex flex-col">
-          <label className="font-semibold text-gray-700 mb-1">Name</label>
+          <label className="font-semibold text-gray-700 mb-1">Full Name</label>
           <input
             type="text"
             placeholder="Enter your name"
@@ -83,6 +91,7 @@ function Student() {
             className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-green-200"
           />
         </div>
+
         {/* ClassId */}
         <div className="flex flex-col">
           <label className="font-semibold text-gray-700 mb-1">ClassId</label>
@@ -90,21 +99,24 @@ function Student() {
             type="text"
             placeholder="Enter your Class Id"
             value={classId}
-            onChange={handleCLassId}
+            onChange={handleClassId}
             className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-green-200"
           />
         </div>
+
+        {/* Subject Code */}
         <div className="flex flex-col">
           <label className="font-semibold text-gray-700 mb-1">Subject Code</label>
           <input
             type="text"
             placeholder="Enter your Subject Code "
             value={subjectCode}
-            onChange={(e) => setSubjectCode(e.target.value)}
+            onChange={handleSubjectCode}
             className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-green-200"
           />
         </div>
 
+        {/* Submit Button */}
         <button
           type="submit"
           className="w-full py-2 mt-4 font-semibold text-white bg-[#45AA40] rounded-lg hover:bg-green-600 focus:outline-none focus:ring focus:ring-green-200"
@@ -112,7 +124,7 @@ function Student() {
           Submit
         </button>
       </form>
-    </div>
+    // </div>
   );
 }
 

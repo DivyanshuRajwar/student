@@ -6,20 +6,29 @@ export const AuthContext = createContext();
 // AuthProvider component
 const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState(null);
+  const [logoutRestrictedUntil, setLogoutRestrictedUntil] = useState(() =>
+    localStorage.getItem('logoutRestrictedUntil')
+      ? new Date(localStorage.getItem('logoutRestrictedUntil'))
+      : null
+  );
 
-  // Check if the user is authenticated on initial load
+  // Load initial authentication state
   useEffect(() => {
-    const savedAuthStatus = localStorage.getItem('isAuthenticated');
+    const savedAuthStatus = localStorage.getItem('isAuthenticated') === 'true';
+    const savedUser = localStorage.getItem('user')
+      ? JSON.parse(localStorage.getItem('user'))
+      : null;
+
     if (savedAuthStatus) {
       setIsAuthenticated(true);
     }
+    if (savedUser) {
+      setUser(savedUser);
+    }
   }, []);
-  //stop log out for 5 mins
-  const [logoutRestrictedUntil, setLogoutRestrictedUntil] = useState(() => 
-    localStorage.getItem('logoutRestrictedUntil') ? 
-    new Date(localStorage.getItem('logoutRestrictedUntil')) : null
-  );
 
+  // Persist `logoutRestrictedUntil` to localStorage
   useEffect(() => {
     if (logoutRestrictedUntil) {
       localStorage.setItem('logoutRestrictedUntil', logoutRestrictedUntil);
@@ -28,13 +37,33 @@ const AuthProvider = ({ children }) => {
     }
   }, [logoutRestrictedUntil]);
 
+  // Clear restriction when the time has passed
+  useEffect(() => {
+    if (logoutRestrictedUntil) {
+      const now = new Date();
+      const timeUntilClear = new Date(logoutRestrictedUntil) - now;
+
+      if (timeUntilClear > 0) {
+        const timer = setTimeout(() => {
+          setLogoutRestrictedUntil(null);
+        }, timeUntilClear);
+
+        return () => clearTimeout(timer);
+      } else {
+        setLogoutRestrictedUntil(null);
+      }
+    }
+  }, [logoutRestrictedUntil]);
 
   // Login function
-  const login = () => {
+  const login = (data) => {
     setIsAuthenticated(true);
+    setUser(data);
     localStorage.setItem('isAuthenticated', 'true');
+    localStorage.setItem('user', JSON.stringify(data));
   };
 
+  // Logout function
   const logout = () => {
     const now = new Date();
     if (logoutRestrictedUntil && now < new Date(logoutRestrictedUntil)) {
@@ -42,10 +71,13 @@ const AuthProvider = ({ children }) => {
       return;
     }
     setIsAuthenticated(false);
+    setUser(null);
     localStorage.removeItem('isAuthenticated');
+    localStorage.removeItem('user');
     setLogoutRestrictedUntil(null);
   };
 
+  // Restrict logout for a specified duration
   const restrictLogoutForDuration = (durationInMinutes) => {
     const restrictionTime = new Date();
     restrictionTime.setMinutes(restrictionTime.getMinutes() + durationInMinutes);
@@ -53,7 +85,9 @@ const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, logout ,restrictLogoutForDuration }}>
+    <AuthContext.Provider
+      value={{ isAuthenticated, login, logout, restrictLogoutForDuration, user }}
+    >
       {children}
     </AuthContext.Provider>
   );

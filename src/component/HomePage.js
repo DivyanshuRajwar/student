@@ -1,55 +1,138 @@
-import React, { useContext } from 'react';
-import { AuthContext } from '../context/AuthContext';
+import React, { useContext, useState, useEffect } from "react";
+import { BrowserRouter as Router, Routes, Route, useNavigate } from "react-router-dom";
+import Male from "../Assets/user_Male.png";
+import LoginSignup from "./LoginSignupForm";
+import StudentPage from "./StudentPage";
+import { AuthContext } from "../context/AuthContext";
+import Student from "./Student";
+import View from "./View";
+import { toast } from "react-toastify";
 
 const HomePage = () => {
-  const { isAuthenticated, logout } = useContext(AuthContext);
+  const navigate = useNavigate();
+  const { isAuthenticated, logout, user } = useContext(AuthContext);
+  const userName = user ? user.fullName.split(" ")[0] : "Guest";
+  const [menuOpen, setMenuOpen] = useState(false);
 
-  // Mock student data (Replace with real data from state or API if available)
-  const studentData = {
-    name: 'John Doe',
-    studentId: '12345',
-    course: 'Computer Science',
+  const handleLogout = () => {
+    toast.success("Bye Bye 🥲");
+    logout();
   };
 
-  if (!isAuthenticated) {
-    return <p>Please log in to view this page.</p>;
-  }
+  // Close menu if clicked outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (!event.target.closest(".dropdown-menu")) {
+        setMenuOpen(false);
+      }
+    };
+
+    document.addEventListener("click", handleClickOutside);
+    return () => document.removeEventListener("click", handleClickOutside);
+  }, []);
 
   return (
-    <div className="w-screen h-screen bg-gray-100">
+    <div className="w-screen h-screen bg-[#CFE9D0]">
       {/* Navigation Bar */}
-      <nav className="  p-4 text-white shadow-md">
-        <div className="flex justify-between items-center container mx-auto">
-          <h1 className="text-xl font-bold text-black ">Student Portal</h1>
-          <button
-            onClick={logout}
-            className="py-2 px-4 bg-red-500 rounded-lg hover:bg-red-600"
-          >
-            Logout
-          </button>
+      <nav className="p-4 h-[4rem] flex items-center">
+        <div className="flex items-center container mx-auto justify-between">
+          {/* Student Portal Title */}
+          <h1 className="text-xl font-bold text-black">Student Portal</h1>
+
+          {/* Desktop Menu */}
+          <div className="hidden md:flex items-center gap-8">
+            <button onClick={() => navigate("/profile")} className="text-black font-bold">
+              Profile
+            </button>
+            <button onClick={() => navigate("/student-attendance")} className="text-black font-bold">
+              Attendance
+            </button>
+            <button onClick={() => navigate("/view")} className="text-black font-bold">
+              View Attendance
+            </button>
+            <button onClick={handleLogout} className="text-black font-bold">
+              Logout
+            </button>
+
+            {/* Username and Profile Image */}
+            <div className="flex items-center bg-white gap-4 pl-4 rounded-full shadow-lg">
+              <span className="font-bold text-sm">{userName}</span>
+              <img
+                src={Male}
+                alt="pic"
+                className="w-[3.2rem] h-[3.2rem]  rounded-full cursor-pointer"
+              />
+            </div>
+          </div>
+
+          {/* Mobile Menu Trigger */}
+          <div className="relative flex items-center md:hidden dropdown-menu">
+            <div className="flex items-center bg-white gap-4 pl-4 rounded-full shadow-lg">
+              <span className="font-bold text-sm">{userName}</span>
+              <img
+                src={Male}
+                alt="pic"
+                className="w-[3.2rem] h-[3.2rem] rounded-full ml-3 cursor-pointer"
+                onClick={() => setMenuOpen(!menuOpen)}
+              />
+            </div>
+
+            {/* Dropdown Menu for Mobile */}
+            {menuOpen && (
+              <div className="absolute top-[4rem] right-0 w-[12rem] bg-white rounded-lg shadow-md p-2 z-10">
+                <button
+                  onClick={() => {
+                    navigate("/profile");
+                    setMenuOpen(false);
+                  }}
+                  className="block w-full text-left p-2 hover:bg-gray-100"
+                >
+                  Profile
+                </button>
+                <button
+                  onClick={() => {
+                    navigate("/student-attendance");
+                    setMenuOpen(false);
+                  }}
+                  className="block w-full text-left p-2 hover:bg-gray-100"
+                >
+                  Attendance
+                </button>
+                <button
+                  onClick={() => {
+                    navigate("/view");
+                    setMenuOpen(false);
+                  }}
+                  className="block w-full text-left p-2 hover:bg-gray-100"
+                >
+                  View Attendance
+                </button>
+                <button
+                  onClick={() => {
+                    handleLogout();
+                    setMenuOpen(false);
+                  }}
+                  className="block w-full text-left p-2 hover:bg-gray-100"
+                >
+                  Logout
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </nav>
 
-      {/* Main Content */}
-      <div className="flex justify-center items-center mt-12">
-        <div className="p-6 bg-white rounded-lg shadow-md w-[90%] max-w-lg">
-          <h2 className="text-2xl font-bold text-gray-800 text-center mb-6">
-            Student Information
-          </h2>
-          <ul className="text-gray-700">
-            <li className="mb-2">
-              <span className="font-semibold">Name:</span> {studentData.name}
-            </li>
-            <li className="mb-2">
-              <span className="font-semibold">Student ID:</span>{' '}
-              {studentData.studentId}
-            </li>
-            <li>
-              <span className="font-semibold">Course:</span>{' '}
-              {studentData.course}
-            </li>
-          </ul>
-        </div>
+      {/* Center Div */}
+      <div
+        style={{ height: "calc(100vh - 4rem)" }}
+        className="w-screen h-[full]  flex justify-center items-center"
+      >
+        <Routes>
+          <Route path="/" element={isAuthenticated ? <StudentPage /> : <LoginSignup />} />
+          <Route path="/profile" element={isAuthenticated ? <StudentPage /> : <LoginSignup />} />
+          <Route path="/view" element={isAuthenticated ? <View s_id={user.studentId} /> : <LoginSignup />} />
+          <Route path="/student-attendance" element={isAuthenticated ? <Student /> : <LoginSignup />} />
+        </Routes>
       </div>
     </div>
   );
