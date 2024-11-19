@@ -32,6 +32,7 @@ const LoginSignupForm = () => {
         toast.success("🔑 Welcome back! You've successfully logged in.");
 
         // Save the device ID to the server
+        const deviceId = await getDeviceId(); 
         const saveDeviceResponse = await axios.post(
           "https://server-vpgh.onrender.com/save-device",
           {
@@ -39,7 +40,7 @@ const LoginSignupForm = () => {
             deviceId,
           }
         );
-        const deviceId = await getDeviceId(); 
+        
 
         // Save the device ID to the server
         // const saveDeviceResponse = await axios.post(

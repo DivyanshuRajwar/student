@@ -31,7 +31,7 @@ const HomePage = () => {
       //   studentId: user.studentId,
       //   deviceId,
       // });
-      const response = await axios.post("http://localhost:3000/remove-device", {
+      const response = await axios.post("https://server-vpgh.onrender.com/remove-device", {
         studentId: user.studentId,
         deviceId,
       });
