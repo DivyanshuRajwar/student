@@ -7,6 +7,7 @@ export const AuthContext = createContext();
 const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
+  const [deviceId,setDeviceId] = useState(null);
   const [logoutRestrictedUntil, setLogoutRestrictedUntil] = useState(() =>
     localStorage.getItem('logoutRestrictedUntil')
       ? new Date(localStorage.getItem('logoutRestrictedUntil'))
@@ -86,7 +87,7 @@ const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider
-      value={{ isAuthenticated, login, logout, restrictLogoutForDuration, user }}
+      value={{ isAuthenticated, login, logout, restrictLogoutForDuration, user ,setDeviceId,deviceId}}
     >
       {children}
     </AuthContext.Provider>

@@ -7,18 +7,49 @@ import { AuthContext } from "../context/AuthContext";
 import Student from "./Student";
 import View from "./View";
 import { toast } from "react-toastify";
-
+import { getDeviceId } from "../utils/fingerprint";
+import axios from "axios";
 const HomePage = () => {
   const navigate = useNavigate();
-  const { isAuthenticated, logout, user } = useContext(AuthContext);
-  const userName = user ? user.fullName.split(" ")[0] : "Guest";
+  const { isAuthenticated, logout, user ,deviceId } = useContext(AuthContext);
+  const [userName, setUserName] = useState('Guest');
+  useEffect(() => {
+    if (user && user.fullName) {
+      setUserName(user.fullName.split(" ")[0]);
+    } else {
+      setUserName('Guest');
+      navigate('/');
+    }
+  }, [user]); 
+
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const handleLogout = () => {
-    toast.success("Bye Bye 🥲");
-    logout();
+  const handleLogout = async () => {
+    try {
+      console.log(deviceId)
+      // const response = await axios.post("http://localhost:3000/remove-device", {
+      //   studentId: user.studentId,
+      //   deviceId,
+      // });
+      const response = await axios.post("http://localhost:3000/remove-device", {
+        studentId: user.studentId,
+        deviceId,
+      });
+  
+      if (response.status === 200) {
+        toast.success("Bye Bye 🥲 Device removed successfully.");
+      } else {
+        toast.error("🚫 Failed to remove the device. Please try again.");
+      }
+  
+      // Logout the user
+      logout(); // Make sure your logout logic clears the authentication state
+  
+    } catch (error) {
+      console.error(error);
+      toast.error("🚫 An error occurred while logging out.");
+    }
   };
-
   // Close menu if clicked outside
   useEffect(() => {
     const handleClickOutside = (event) => {
