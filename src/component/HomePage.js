@@ -44,10 +44,11 @@ const HomePage = () => {
   
       // Logout the user
       logout(); // Make sure your logout logic clears the authentication state
-  
+      
     } catch (error) {
       console.error(error);
       toast.error("🚫 An error occurred while logging out.");
+      logout(); // Make sure your logout logic clears the authentication state
     }
   };
   // Close menu if clicked outside
