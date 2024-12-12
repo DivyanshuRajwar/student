@@ -7,11 +7,9 @@ import { AuthContext } from "../context/AuthContext";
 import Student from "./Student";
 import View from "./View";
 import { toast } from "react-toastify";
-import { getDeviceId } from "../utils/fingerprint";
-import axios from "axios";
 const HomePage = () => {
   const navigate = useNavigate();
-  const { isAuthenticated, logout, user ,deviceId } = useContext(AuthContext);
+  const { isAuthenticated, logout, user  } = useContext(AuthContext);
   const [userName, setUserName] = useState('Guest');
   useEffect(() => {
     if (user && user.fullName) {
@@ -26,29 +24,12 @@ const HomePage = () => {
 
   const handleLogout = async () => {
     try {
-      console.log(deviceId)
-      // const response = await axios.post("http://localhost:3000/remove-device", {
-      //   studentId: user.studentId,
-      //   deviceId,
-      // });
-      const response = await axios.post("https://server-vpgh.onrender.com/remove-device", {
-        studentId: user.studentId,
-        deviceId,
-      });
-  
-      if (response.status === 200) {
-        toast.success("Bye Bye 🥲 Device removed successfully.");
-      } else {
-        toast.error("🚫 Failed to remove the device. Please try again.");
-      }
-  
       // Logout the user
-      logout(); // Make sure your logout logic clears the authentication state
-      
-    } catch (error) {
+      await logout();
+    } 
+    catch (error) {
       console.error(error);
       toast.error("🚫 An error occurred while logging out.");
-      logout(); // Make sure your logout logic clears the authentication state
     }
   };
   // Close menu if clicked outside
@@ -164,6 +145,7 @@ const HomePage = () => {
           <Route path="/profile" element={isAuthenticated ? <StudentPage /> : <LoginSignup />} />
           <Route path="/view" element={isAuthenticated ? <View s_id={user.studentId} /> : <LoginSignup />} />
           <Route path="/student-attendance" element={isAuthenticated ? <Student /> : <LoginSignup />} />
+
         </Routes>
       </div>
     </div>

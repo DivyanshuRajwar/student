@@ -1,4 +1,5 @@
 import React, { createContext, useState, useEffect } from 'react';
+import { getCookie, setCookie, deleteCookie } from '../utils/cookies';
 
 // Create the context
 export const AuthContext = createContext();
@@ -7,19 +8,15 @@ export const AuthContext = createContext();
 const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
-  const [deviceId,setDeviceId] = useState(null);
+  const [deviceId, setDeviceId] = useState(null);
   const [logoutRestrictedUntil, setLogoutRestrictedUntil] = useState(() =>
-    localStorage.getItem('logoutRestrictedUntil')
-      ? new Date(localStorage.getItem('logoutRestrictedUntil'))
-      : null
+    getCookie('logoutRestrictedUntil') ? new Date(getCookie('logoutRestrictedUntil')) : null
   );
 
-  // Load initial authentication state
+  // Load initial authentication state from cookies
   useEffect(() => {
-    const savedAuthStatus = localStorage.getItem('isAuthenticated') === 'true';
-    const savedUser = localStorage.getItem('user')
-      ? JSON.parse(localStorage.getItem('user'))
-      : null;
+    const savedAuthStatus = getCookie('isAuthenticated');
+    const savedUser = getCookie('user');
 
     if (savedAuthStatus) {
       setIsAuthenticated(true);
@@ -29,12 +26,12 @@ const AuthProvider = ({ children }) => {
     }
   }, []);
 
-  // Persist `logoutRestrictedUntil` to localStorage
+  // Persist `logoutRestrictedUntil` to cookies
   useEffect(() => {
     if (logoutRestrictedUntil) {
-      localStorage.setItem('logoutRestrictedUntil', logoutRestrictedUntil);
+      setCookie('logoutRestrictedUntil', logoutRestrictedUntil);
     } else {
-      localStorage.removeItem('logoutRestrictedUntil');
+      deleteCookie('logoutRestrictedUntil');
     }
   }, [logoutRestrictedUntil]);
 
@@ -60,8 +57,8 @@ const AuthProvider = ({ children }) => {
   const login = (data) => {
     setIsAuthenticated(true);
     setUser(data);
-    localStorage.setItem('isAuthenticated', 'true');
-    localStorage.setItem('user', JSON.stringify(data));
+    setCookie('isAuthenticated', 'true');
+    setCookie('user', data);
   };
 
   // Logout function
@@ -73,8 +70,8 @@ const AuthProvider = ({ children }) => {
     }
     setIsAuthenticated(false);
     setUser(null);
-    localStorage.removeItem('isAuthenticated');
-    localStorage.removeItem('user');
+    deleteCookie('isAuthenticated');
+    deleteCookie('user');
     setLogoutRestrictedUntil(null);
   };
 
@@ -87,7 +84,7 @@ const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider
-      value={{ isAuthenticated, login, logout, restrictLogoutForDuration, user ,setDeviceId,deviceId}}
+      value={{ isAuthenticated, login, logout, restrictLogoutForDuration, user, setDeviceId, deviceId }}
     >
       {children}
     </AuthContext.Provider>

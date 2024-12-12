@@ -1,71 +1,45 @@
 import React, { useState, useContext } from "react";
-import FingerprintJS from "@fingerprintjs/fingerprintjs";
 import { AuthContext } from "../context/AuthContext";
 import { toast } from "react-toastify";
 import axios from "axios";
-import {getDeviceId} from '../utils/fingerprint'
 const LoginSignupForm = () => {
-  const { isAuthenticated, login, logout ,setDeviceId } = useContext(AuthContext);
-  const [isLogin, setIsLogin] = useState(true); // Toggle between login and signup
+  const { login } = useContext(AuthContext);
+  const [isLogin, setIsLogin] = useState(true); 
   const [studentId, setStudentId] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [course, setCourse] = useState("");
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
 
-    const studentLogin = { studentId, password };
+const handleLogin = async (e) => {
+  e.preventDefault();
 
-    try {
-      // const response = await axios.post(
-      //   "http://localhost:3000/student-login",
-      //   studentLogin
-      // );
-      const response = await axios.post(
-          "https://server-vpgh.onrender.com/student-login",
-          studentLogin
-        );
+  const studentLogin = { studentId, password };
 
-      if (response.status === 200) {
-        login(response.data.userData);
-        toast.success("🔑 Welcome back! You've successfully logged in.");
+  try {
+    const response = await axios.post(
+      "http://localhost:3000/student-login",
+      studentLogin
+    );
+    // const response = await axios.post(
+    //   "https://server-vpgh.onrender.com/student-login",
+    //   studentLogin
+    // );
 
-        // Save the device ID to the server
-        const deviceId = await getDeviceId(); 
-        const saveDeviceResponse = await axios.post(
-          "https://server-vpgh.onrender.com/save-device",
-          {
-            studentId: response.data.userData.studentId,
-            deviceId,
-          }
-        );
-        
 
-        // Save the device ID to the server
-        // const saveDeviceResponse = await axios.post(
-        //   "http://localhost:3000/save-device",
-        //   {
-        //     studentId: response.data.userData.studentId,
-        //     deviceId,
-        //   }
-        // );
-        if (saveDeviceResponse.status === 200) {
-          toast.success("📲 Device successfully registered for attendance.");
-          setDeviceId(deviceId);
-        } else {
-          toast.error("🚫 Failed to register the device. Please try again.");
-        }
-      } else {
-        toast.error(
-          "🚫 Invalid credentials. Please check your username or password."
-        );
-      }
-    } catch (error) {
-      console.error(error);
-      toast.error("🚫 Login failed. Please try again later.");
+    if (response.status === 200) {
+      login(response.data.userData);  
+      toast.success("🔑 Welcome back! You've successfully logged in.");
+    } else {
+      toast.error("🚫 Invalid credentials. Please check your username or password.");
     }
-  };
+  } catch (error) {
+    console.error(error);
+    toast.error("🚫 Login failed. Please try again later.");
+  }
+};
+
+  
   const handleSignup = async (e) => {
     e.preventDefault();
     const signUpData = {
@@ -75,24 +49,24 @@ const LoginSignupForm = () => {
       password,
     };
     try {
-        // const response = await  axios.post('http://localhost:3000/student-registration',signUpData);
-      const response = await axios.post(
-        "https://server-vpgh.onrender.com/student-registration",
-        signUpData
-      );
+      const response = await  axios.post('http://localhost:3000/student-registration',signUpData);
+      // const response = await axios.post(
+      //   "https://server-vpgh.onrender.com/student-registration",
+      //   signUpData
+      // );
       if (response.status === 200) {
         toast.success("🎉 You're all set! Welcome aboard");
       } else {
         toast.error("Oops! Something went wrong. Please try again.");
       }
     } catch (error) {
-      // if (error.response) {
-      //     console.error('Error Response:', error.response.data);
-      //   } else if (error.request) {
-      //     console.error('No Response:', error.request);
-      //   } else {
-      //     console.error('Error:', error.message);
-      //   }
+      if (error.response) {
+          console.error('Error Response:', error.response.data);
+        } else if (error.request) {
+          console.error('No Response:', error.request);
+        } else {
+          console.error('Error:', error.message);
+        }
       toast.error("Oops! Something went wrong. Please try again.");
     }
   };

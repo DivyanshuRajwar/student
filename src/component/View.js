@@ -11,12 +11,12 @@ const View = ({ s_id }) => {
   useEffect(() => {
     const fetchAttendance = async () => {
       try {
-        // const response = await axios.get(
-        //   `http://localhost:3000/get-today-attendance?studentId=${studentId}`
-        // );
         const response = await axios.get(
-          `https://server-vpgh.onrender.com/get-today-attendance?studentId=${studentId}`
+          `http://localhost:3000/get-today-attendance?studentId=${studentId}`
         );
+        // const response = await axios.get(
+        //   `https://server-vpgh.onrender.com/get-today-attendance?studentId=${studentId}`
+        // );
 
         if (response.status !== 200) {
           throw new Error(`Error: ${response.statusText}`);

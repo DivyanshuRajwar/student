@@ -25,8 +25,8 @@ function Student() {
     };
 
     try {
-      // const response = await axios.post("http://localhost:3000/submit-student-data", studentData);
-      const response = await axios.post("https://server-vpgh.onrender.com/submit-student-data", studentData);
+      const response = await axios.post("http://localhost:3000/submit-student-data", studentData);
+      // const response = await axios.post("https://server-vpgh.onrender.com/submit-student-data", studentData);
       setName("");
       setRollNo("");
       setClassId("");
@@ -34,14 +34,23 @@ function Student() {
       if (response.status === 200) {
         toast.success("🥳 Attendance submitted successfully!");
         restrictLogoutForDuration(5);
-      } else {
+      }else if(response.status === 406){
+        toast.error("Not valide ClassId");
+      }
+       else {
         toast.error("Failed to submit attendance.");
       }
-    } catch (error) {
-      if (error.response && error.response.status === 403) {
-        toast.warning("Time over, no attendance can be submitted");
-      } else if (error.response && error.response.status === 409) {
-        toast.error("Attendance already submitted");
+    }catch (error) {
+      if (error.response) {
+        if (error.response.status === 403) {
+          toast.warning("Time over, no attendance can be submitted");
+        } else if (error.response.status === 409) {
+          toast.error("Attendance already submitted");
+        } else if (error.response.status === 500) {
+          toast.error("Internal server error, please try again later");
+        } else {
+          toast.error(`Error: ${error.response.status} - ${error.response.data?.message || "Something went wrong."}`);
+        }
       } else {
         toast.error("Problem in sending attendance");
       }
@@ -61,7 +70,6 @@ function Student() {
   };
 
   return (
-    // <div className="flex items-center justify-center min-h-screen bg-[#CFE9D0] px-4 sm:px-6 lg:px-8">
       <form
         onSubmit={handleSubmit}
         className="w-full max-w-sm sm:max-w-md bg-white p-6 rounded-lg shadow-lg space-y-6  sm:px-6 lg:px-8"
@@ -124,7 +132,6 @@ function Student() {
           Submit
         </button>
       </form>
-    // </div>
   );
 }
 
